@@ -29,9 +29,10 @@ end
 
 #Calculating the angle in their way
 function angle(point1, point2)
-    dx, dy = point2[1] - point1[1], point2[2] - point1[2]
-    a = atan(dy/dx)/pi*180 + (dx < 0 ? 180 : 0)
-    return mod(a + 90, 360)
+    #dx, dy = point2[1] - point1[1], point2[2] - point1[2]
+    #return mod(atan(dy, dx) + pi/2, 2pi)
+    #Get the atan2 angle, shift it by 90
+    return mod(atan(point2[2] - point1[2], point2[1] - point1[1]) + pi/2, 2pi)
 end
 
 #First task
