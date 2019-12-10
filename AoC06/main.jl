@@ -1,5 +1,5 @@
 # Open and parse file
-file = open("C:\\Projects\\Julia\\AdventOfCode\\AoC06\\input.txt") do file
+file = open("C:\\Projects\\AdventOfCode\\Solutions\\AoC06\\input.txt") do file
     read(file, String)
 end
 tokens = split(file)
@@ -12,6 +12,7 @@ mutable struct Node
 end
 
 dict = Dict()
+
 
 #Parse the tree
 for entry in tokens

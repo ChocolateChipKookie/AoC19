@@ -1,11 +1,10 @@
 using DataStructures
-cd()
 
 width, height = 0, 0
 
 #Loading the input
 function load()
-    file = open("C:\\Projects\\Julia\\AdventOfCode\\AoC10\\input.txt") do file
+    file = open("C:\\Projects\\AdventOfCode\\Solutions\\AoC10\\input.txt") do file
         read(file, String)
     end
 

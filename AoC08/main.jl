@@ -1,5 +1,5 @@
 # Open and parse file
-file = open("C:\\Projects\\Julia\\AdventOfCode\\AoC08\\input.txt") do file
+file = open("C:\\Projects\\AdventOfCode\\Solutions\\AoC08\\input.txt") do file
     read(file, String)
 end
 
