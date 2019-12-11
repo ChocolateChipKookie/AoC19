@@ -131,9 +131,15 @@ void t2()
 end:;
 }
 
+/*
+ * First 7265618
+ * Second 7731427
+ */
+
 int main(int argc, char* argv[])
 {
+	std::cout << "First ";
 	t1();
-	char t;
-	std::cin >> t;
+	std::cout << "\nSecond ";
+	t2();
 }

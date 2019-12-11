@@ -84,5 +84,10 @@ function task2()
     println("Second: ", total)
 end
 
+"""
+First: 621125
+Second: 550
+"""
+
 task1()
 task2()

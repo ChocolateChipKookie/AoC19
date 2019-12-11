@@ -19,7 +19,7 @@ function task1()
             result = count(x->x=='1', file[i*size + 1: i*size + size]) * count(x->x=='2', file[i*size + 1: i*size + size])
         end
     end
-    println("Task1 result = $result")
+    println("First = $result")
 end
 
 function task2()
@@ -44,9 +44,18 @@ function task2()
         end
     end
 
-    println("Task2 result:")
+    println("Second:")
     printarr()
 end
-
+"""
+First = 2016
+Second:
+#  # ####  ##  #### #  #
+#  #    # #  #    # #  #
+####   #  #      #  #  #
+#  #  #   #     #   #  #
+#  # #    #  # #    #  #
+#  # ####  ##  ####  ##
+"""
 task1()
 task2()

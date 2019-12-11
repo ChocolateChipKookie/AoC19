@@ -35,7 +35,7 @@ void t1()
 	}
 end:
 
-	std::cout << inputs[0] << std::endl;
+	std::cout << "First " << inputs[0] << std::endl;
 }
 void t2()
 {
@@ -79,7 +79,7 @@ void t2()
 		end:
 			if(exit && inputs[0] == 19690720)
 			{
-				std::cout << "Found: " <<100 * noun + verb << std::endl;
+				std::cout << "Second: " <<100 * noun + verb << std::endl;
 				goto end_;
 			}
 		}
@@ -87,9 +87,13 @@ void t2()
 end_:;
 }
 
+/*
+ * First 2890696
+ * Second: 8226
+ */
+
 int main(int argc, char* argv[])
 {
+	t1();
 	t2();
-	char t;
-	std::cin >> t;
 }

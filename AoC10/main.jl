@@ -96,7 +96,12 @@ function f2(asteroids, pos::Int64)
     end
 end
 
+"""
+First = 284
+Second = At position (4, 4), with value 404
+"""
+
 asteroids = load()
-println("First task: $(f1(asteroids)[1])")
+println("First = $(f1(asteroids)[1])")
 ans = f2(asteroids, 200)
-println("Second task: At position $ans, with value $(100* ans[1] + ans[2])")
+println("Second = At position $ans, with value $(100* ans[1] + ans[2])")

@@ -8,7 +8,7 @@ void f1(){
         val -= 2;
         total += val;
     }
-    std::cout << total<< std::endl;
+    std::cout << "First " << total << std::endl;
 }
 
 void f2(){
@@ -21,8 +21,13 @@ void f2(){
             total += elem;
         }
     }
-    std::cout << total<< std::endl;
+    std::cout << "Second " << total << std::endl;
 }
+
+/*
+ * First 3229279
+ * Second 4841054
+ */
 
 
 int main(void){

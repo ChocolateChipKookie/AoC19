@@ -137,21 +137,27 @@ void intcode(int input)
 end:;
 }
 
-
-
 void t1()
 {
+	std::cout << "First: ";
 	intcode(1);
 }
 
 void t2()
 {
+	std::cout << "Second: ";
 	intcode(2);
+	std::cout << std::endl;
+
 }
+
+/*
+ * First: 2350741403
+ * Second: 53088
+ */
 
 int main(int argc, char* argv[])
 {
+	t1();
 	t2();
-	char t;
-	std::cin >> t;
 }

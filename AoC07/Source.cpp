@@ -139,16 +139,14 @@ void t1()
 			{
 				input = intcode(phase, input);
 			}
-			std::cout << input << std::endl;
 			results.push_back(input);
 		}
 		catch(std::runtime_error& error)
 		{
-			std::cout << "No output" << std::endl;
 		}
 	}
 
-	std::cout << "Max = " << *std::max_element(results.begin(), results.end()) << std::endl;
+	std::cout << "First = " << *std::max_element(results.begin(), results.end()) << std::endl;
 }
 
 std::map<int, std::pair<std::vector<int64_t>, int>> context;
@@ -258,26 +256,26 @@ void t2()
 		}
 		catch (std::runtime_error & error)
 		{
-			std::cout << error.what() << " res = " << result << std::endl;
 			results.push_back(result);
 		}
 	}
 
-	std::cout << "Top result = " << *std::max_element(results.begin(), results.end()) << std::endl;
+	std::cout << "Second = " << *std::max_element(results.begin(), results.end()) << std::endl;
 
 }
 
+/*
+ * First = 77500
+ * Second = 22476942
+ */
+
 int main(int argc, char* argv[])
 {
-	//int64_t numbers[]{ 0, 1, 2, 3, 4 };
-	//heapPermutation(numbers, 5, 5);
-	//t1();
-
-	int64_t numbers[]{ 5, 6, 7, 8, 9 };
+	int64_t numbers[]{ 0, 1, 2, 3, 4 };
 	heapPermutation(numbers, 5, 5);
+	t1();
+	permutations.clear();
+	int64_t numbers_[]{ 5, 6, 7, 8, 9 };
+	heapPermutation(numbers_, 5, 5);
 	t2();
-
-
-	char t;
-	std::cin >> t;
 }
