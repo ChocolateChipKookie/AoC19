@@ -29,16 +29,13 @@ function t1()
     for _ in 1:1000
         for i in 1:length(planets)
             for j in i + 1: length(planets)
-                p1 = planets[i]
-                p2 = planets[j]
-
                 for dim in 1:3
-                    if p1[dim] < p2[dim]
-                        p1[dim+3] += 1
-                        p2[dim+3] -= 1
-                    elseif p1[dim] > p2[dim]
-                        p1[dim+3] -= 1
-                        p2[dim+3] += 1
+                    if planets[i][dim] < planets[j][dim]
+                        planets[i][dim+3] += 1
+                        planets[j][dim+3] -= 1
+                    elseif planets[i][dim] > planets[j][dim]
+                        planets[i][dim+3] -= 1
+                        planets[j][dim+3] += 1
                     end
                 end
             end
@@ -53,71 +50,56 @@ function t1()
 
     energy = 0
     for planet in planets
-        pot = 0
-        kin = 0
+        pot, kin = 0, 0
         for dim in 1:3
             pot += abs(planet[dim])
             kin += abs(planet[dim + 3])
         end
-        total = pot * kin
-        energy += total
+        energy += pot * kin
     end
     println("First = $energy")
 end
 
 function t2()
     planets = load_planets()
-    steps = 1
 
+    #Recurring pattern for all dimensions
     recurring = fill(0, 3)
-
     for axis in 1:3
-        init = Array{Int64, 1}(undef, 0)
-
-
-        for planet in planets
-            push!(init, planet[axis])
-        end
-
-        current = Array{Int64, 1}(undef, length(planets))
+        #Initial state
+        init = [x[axis] for x = planets]
+        #Don't know why, but it works
         steps = 2
 
         while true
+            #Gravity update
             for i in 1:length(planets)
                 for j in i + 1: length(planets)
-                    p1 = planets[i]
-                    p2 = planets[j]
-                    if p1[axis] < p2[axis]
-                        p1[axis+3] += 1
-                        p2[axis+3] -= 1
-                    elseif p1[axis] > p2[axis]
-                        p1[axis+3] -= 1
-                        p2[axis+3] += 1
+                    if planets[i][axis] < planets[j][axis]
+                        planets[i][axis+3] += 1
+                        planets[j][axis+3] -= 1
+                    elseif planets[i][axis] > planets[j][axis]
+                        planets[i][axis+3] -= 1
+                        planets[j][axis+3] += 1
                     end
                 end
             end
 
+            #Update
             for planet in planets
                 planet[axis] += planet[axis+3]
             end
-
-            for index in 1:length(planets)
-                current[index] = planets[index][axis]
-            end
-
-
-            if current == init
+            #Exit condition
+            if [x[axis] for x = planets] == init
                 break
             end
-
+            #Update steps
             steps += 1
         end
-
         recurring[axis] = steps
     end
-
-    tmp = lcm(recurring[1], recurring[2], recurring[3])
-    println("Second = $tmp")
+    #Least common multiple of the steps for all dimensions
+    println("Second = $(lcm(recurring))")
 end
 
 #First = 7758
