@@ -1,7 +1,3 @@
-
-
-
-
 file = open("C:\\Projects\\AdventOfCode\\Solutions\\AoC14\\input.txt") do file
     read(file, String)
 end
@@ -12,138 +8,104 @@ mutable struct chemical
     amount::Int64
 end
 
-mutable struct reaction
-    ingredients::Array{chemical, 1}
-    result::chemical
-end
-
-
-
-reactions_dict = Dict{String, Any}()
-reactions = Array{reaction, 1}(undef, 0)
+#Dictionary on how to make different chemicals
+#Every chemical key has a tuple value,
+#where the first value is the amount of that chemical which will be made during the process
+#and the second is the array of chemicals needed for the production
+reactions_dict = Dict{String, Tuple{Int64, Array{chemical, 1}}}()
 
 for line in file
-    if line == ""
-        continue
-    end
+    if line == "" continue end
+    # Parsing
     substrings = split(line, "=>")
+    ingredient_strings = split(strip(substrings[1]), ", ")
 
-    ingredients = split(strip(substrings[1]), ", ")
-
-    res = strip(substrings[2])
-    res = split(res, " ")
+    #Create result chemical
+    res = split(strip(substrings[2]), " ")
     res = chemical(res[2], parse(Int64, res[1]))
 
-    ingredients_ = Array{chemical, 1}(undef, 0)
+    ingredients = Array{chemical, 1}(undef, 0)
 
-    for substr in ingredients
-        ing = strip(substr)
-        ing = split(ing, " ")
-        ing = chemical(ing[2], parse(Int64, ing[1]))
-        push!(ingredients_, ing)
+    for substr in ingredient_strings
+        #Push chemical to the array
+        ingredient = split(strip(substr), " ")
+        push!(ingredients, chemical(ingredient[2], parse(Int64, ingredient[1])))
     end
 
-    re = reaction(ingredients_, res)
-
-    if !haskey(reactions_dict, res.name)
-        reactions_dict[res.name] = (res.amount, ingredients_)
-    end
-
-    push!(reactions, re)
+    reactions_dict[res.name] = (res.amount, ingredients)
 end
 
-function t1()
+function generate_fuel(quantity::Int64)
+    #Create dictionary for all the ingredients that are needed
     needed = Dict{String, Int64}()
-    needed["FUEL"] = 1
+    needed["FUEL"] = quantity
     needed["ORE"] = 0
+    #Also create dict for available ores (Some residuals will be produced)
     available = Dict{String, Int64}()
 
+    #Do the loop untill there is only one ingredient in the needed dict ("ORE")
     while !(length(needed) == 1)
+        #New dict for all the new stuff we need
         new_needed = Dict{String, Int64}()
         new_needed["ORE"] = needed["ORE"]
-        for element in needed
-            if element.first == "ORE"
+        #Create all the chemicals we need
+        for chem in needed
+            #Skip ore as it is the end
+            if chem.first == "ORE"
                 continue
             end
-
-            if !haskey(available, element.first)
-                available[element.first] = 0
+            #If there is currently not
+            if !haskey(available, chem.first)
+                available[chem.first] = 0
             end
 
-            if available[element.first] < element.second
-                to_make = element.second - available[element.first]
+            #Create at least as many chemicals as we need
+            if available[chem.first] < chem.second
+                #Specify how many chemicals we need to make
+                #And find multiplier as there can be multiple chemicals created
+                to_make = chem.second - available[chem.first]
+                multiplier = cld(to_make, reactions_dict[chem.first][1])
 
-                multiplier = cld(to_make, reactions_dict[element.first][1])
-
-                available[element.first] += multiplier * reactions_dict[element.first][1]
-                for chem in reactions_dict[element.first][2]
-                    if !haskey(new_needed, chem.name)
-                        new_needed[chem.name] = 0
+                #Ingredients for creation destroyed
+                for chem_reac in reactions_dict[chem.first][2]
+                    if !haskey(new_needed, chem_reac.name)
+                        new_needed[chem_reac.name] = 0
                     end
-                    new_needed[chem.name] += multiplier* chem.amount
+                    new_needed[chem_reac.name] += multiplier* chem_reac.amount
                 end
+
+                #Chemicals created
+                available[chem.first] += multiplier * reactions_dict[chem.first][1]
             end
 
-            available[element.first] -= element.second
+            #Get as many chemicals as we need, leave the rest for future production
+            available[chem.first] -= chem.second
         end
 
+        #Update the chemicals we need
         needed = new_needed
     end
 
-    println("First :", needed["ORE"])
+    #We are left with "ORE" being the only chemical we need
+    return needed["ORE"]
+end
 
+function t1()
+    #How much "ORE" for one "FUEL"
+    println("First :", generate_fuel(1))
 end
 
 function t2()
-    available = Dict{String, Int64}()
-
+    #How much "FUEL" for 1000000000000 "ORE"
+    #Binary search
     total_ore = 1000000000000
-
-    function create_fuel(a)
-        needed = Dict{String, Int64}()
-        needed["FUEL"] = a
-        needed["ORE"] = 0
-        while !(length(needed) == 1)
-            new_needed = Dict{String, Int64}()
-            new_needed["ORE"] = needed["ORE"]
-            for element in needed
-                if element.first == "ORE"
-                    continue
-                end
-
-                if !haskey(available, element.first)
-                    available[element.first] = 0
-                end
-
-                if available[element.first] < element.second
-                    to_make = element.second - available[element.first]
-
-                    multiplier = cld(to_make, reactions_dict[element.first][1])
-
-                    available[element.first] += multiplier * reactions_dict[element.first][1]
-                    for chem in reactions_dict[element.first][2]
-                        if !haskey(new_needed, chem.name)
-                            new_needed[chem.name] = 0
-                        end
-                        new_needed[chem.name] += multiplier* chem.amount
-                    end
-                end
-
-                available[element.first] -= element.second
-            end
-
-            needed = new_needed
-        end
-        return needed["ORE"]
-    end
-
     min_fuel = 0
     max_fuel = 1000000000000
     mid_fuel = div(min_fuel + max_fuel, 2)
 
     while min_fuel < max_fuel
         mid_fuel = div(min_fuel + max_fuel, 2) + 1
-        ore = create_fuel(mid_fuel)
+        ore = generate_fuel(mid_fuel)
         if ore < total_ore
             min_fuel = mid_fuel
         else
