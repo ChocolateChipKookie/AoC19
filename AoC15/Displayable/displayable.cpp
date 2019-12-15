@@ -516,6 +516,9 @@ void fill_oxygen(std::pair<lli, lli> pos, std::map<std::pair<lli, lli>, char>& m
 	}
 }
 
+
+std::map<int, int> opposite{{1, 2}, {2, 1}, {3, 4}, {4, 3}};
+
 void display()
 {
 	{
@@ -586,6 +589,108 @@ void display()
 		}
 	}
 
+	int dfs;
+	std::cout << "\nBFS(0) or DFS(1): ";
+	std::cin >> dfs;
+	if(dfs == 1)
+	{
+		std::map<std::pair<lli, lli>, char> map_not_discovered = map_;
+
+		std::ifstream ifs("Text.txt");
+		std::istream_iterator<lli> begin(ifs), end;
+		std::vector<lli> inputs_{ begin, end };
+		ifs.close();
+
+		for (lli i = 0; i < inputs_.size(); ++i)
+			context[i] = inputs_[i];
+
+		position = { 0, 0 };
+		map_.clear();
+		undiscovered.clear();
+		discovered.clear();
+		map_[position] = ' ';
+
+		discovered.insert(position);
+
+		std::set<std::pair<lli, lli>> undiscovered;
+
+		undiscovered.insert({ 0, -1 });
+		undiscovered.insert({ 0,  1 });
+		undiscovered.insert({ -1, 0 });
+		undiscovered.insert({ 1, 0 });
+
+		int res = 0;
+
+		std::pair<lli, lli> tank_position;
+
+		std::vector<int> trace;
+
+		while (!undiscovered.empty())
+		{
+			std::pair<lli, lli> undis;
+
+			int direction = 0;
+
+			for (int i = 1; i <= 4; ++i)
+			{
+				std::pair<lli, lli> next = { position.first + dx[i], position.second + dy[i] };
+				if (undiscovered.find(next) != undiscovered.end())
+				{
+					undis = *undiscovered.find(next);
+					direction = i;
+					break;
+				}
+			}
+
+			if (direction == 0)
+			{
+				int back_dir = trace.back();
+				trace.pop_back();
+				intcode(back_dir);
+				position.first += dx[back_dir];
+				position.second += dy[back_dir];
+				print_map_not_discovered(map_not_discovered, true, position);
+
+				continue;
+			}
+
+			undiscovered.erase(undiscovered.find(undis));
+
+			int res = intcode(direction);
+			if (res == 0)
+			{
+				discovered.insert(undis);
+				map_[undis] = '#';
+			}
+			else if (res == 1 || res == 2)
+			{
+				trace.push_back(opposite[direction]);
+
+				discovered.insert(undis);
+				position = undis;
+
+				for (int i = 1; i <= 4; ++i)
+				{
+					std::pair<lli, lli> next = { undis.first + dx[i], undis.second + dy[i] };
+					if (discovered.find(next) == discovered.end())
+					{
+						undiscovered.insert(next);
+					}
+				}
+
+				map_[undis] = res == 1 ? ' ' : 'o';
+				if (res == 2)
+				{
+					tank_position = position;
+					break;
+				}
+			}
+			print_map_not_discovered(map_not_discovered, true, position);
+		}
+		fill_oxygen(tank_position, map_not_discovered);
+	}
+	else
+	{
 	std::map<std::pair<lli, lli>, char> map_not_discovered = map_;
 
 	std::ifstream ifs("Text.txt");
@@ -603,19 +708,21 @@ void display()
 	map_[position] = ' ';
 
 	discovered.insert(position);
+
 	undiscovered.insert({ { 0, -1 }, {{0, 0}, 1} });
 	undiscovered.insert({ { 0,  1 }, {{0, 0}, 2} });
 	undiscovered.insert({ { -1, 0 }, {{0, 0}, 3} });
 	undiscovered.insert({ {  1, 0 }, {{0, 0}, 4} });
 
-	int res = 0;
-
 	std::pair<lli, lli> tank_position;
+
+	std::vector<int> trace;
 
 	while (!undiscovered.empty())
 	{
-		auto undis = *undiscovered.begin();
-		undiscovered.erase(undiscovered.begin());
+		std::pair<std::pair<lli, lli>, std::pair<std::pair<lli, lli>, int>> undis = *undiscovered.begin();
+
+		undiscovered.erase(undiscovered.find(undis.first));
 
 		auto moves = move_xy(position, undis.second.first);
 
@@ -656,9 +763,9 @@ void display()
 		}
 		print_map_not_discovered(map_not_discovered, true, position);
 	}
-
-
 	fill_oxygen(tank_position, map_not_discovered);
+	}
+
 }
 
 /*
