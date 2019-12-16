@@ -16,10 +16,10 @@ function calculate_phase(input, result)
     end
 end
 
-function calculate_phase_second_half(input)
+function calculate_phase_from_offset(input, offset)
     total = 0
-    len, half_len = length(input), div(length(input), 2)
-    for x in len:-1:half_len
+    len = length(input)
+    for x in len:-1:offset
         #As the second half is only a triangular matrix, it is only additions
         #When only adding we can get the last digit with the mod operation
         total += input[x]
@@ -56,13 +56,13 @@ function t2()
     offset = parse(Int64, prod(map(x->string(x), input[1:7])))
 
     #We only need to calculate the second half of the matrix because the result is there and it is a triangular matrix
+    #Only the stuff after the offset actually matters
     for i in 1:100
-        calculate_phase_second_half2(input)
+        calculate_phase_from_offset(input, offset)
     end
 
     println("Second: $(prod(map(x->string(x), input[offset + 1:offset + 8])))")
 end
-
 
 """
 First: 73127523
