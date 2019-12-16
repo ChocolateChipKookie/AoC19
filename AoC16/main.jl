@@ -16,17 +16,14 @@ function calculate_phase(input, result)
     end
 end
 
-function calculate_phase_second_half(input, result)
-    #Good old fashioned dynamic programming
-    result[length(input)] = input[length(input)]
-    for x in (length(input) - 1):-1:div(length(input), 2)
+function calculate_phase_second_half(input)
+    total = 0
+    len, half_len = length(input), div(length(input), 2)
+    for x in len:-1:half_len
         #As the second half is only a triangular matrix, it is only additions
         #When only adding we can get the last digit with the mod operation
-        #Slow way 43.744163 seconds (650.00 M allocations: 29.154 GiB, 10.47% gc time):
-        #result[x] = input[x] + result[x+1]
-        #result[x] = string(result[x])[end] - '0'
-        #Fast way  2.844051 seconds (79 allocations: 99.194 MiB, 0.92% gc time):
-        result[x] = mod(input[x] + result[x+1], 10)
+        total += input[x]
+        input[x] = mod(total, 10)
     end
 end
 
@@ -46,30 +43,24 @@ function t1()
     println("First: $(prod(map(x->string(x), input[1:8])))")
 end
 
-
-
 function t2()
-    @time begin
     #Reading file
     file = open("C:\\Projects\\AdventOfCode\\Solutions\\AoC16\\input.txt") do file
         read(file, String)
     end
+
     #Parsing input
-    input = map(x-> x - '0', collect(strip(file)))
     #Doing the ugly stuff
+    input = map(x-> x - '0', collect(strip(file)))
     input = repeat(input, 10000)
-    result = Array{Int64, 1}(undef, length(input))
-    #Parsing offset
     offset = parse(Int64, prod(map(x->string(x), input[1:7])))
 
     #We only need to calculate the second half of the matrix because the result is there and it is a triangular matrix
-    for i in 1:div(100, 2)
-        calculate_phase_second_half(input, result)
-        calculate_phase_second_half(result, input)
+    for i in 1:100
+        calculate_phase_second_half2(input)
     end
 
     println("Second: $(prod(map(x->string(x), input[offset + 1:offset + 8])))")
-end
 end
 
 
