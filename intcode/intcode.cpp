@@ -120,14 +120,14 @@ namespace ic
 			{
 			case 1: add(operands);						break;
 			case 2: mul(operands);						break;
-			case 3: input(operands, current_input);		break;
-			case 4: output(operands, running, outputs);	break;
+			case 3: input(operands, current_input);			break;
+			case 4: output(operands, running, outputs);		break;
 			case 5: jump(operands, false);					break;
 			case 6: jump(operands, true);					break;
 			case 7: less(operands);						break;
 			case 8: equal(operands);					break;
-			case 9: add_relative(operands);				break;
-			case 99: running = false;						break;
+			case 9: add_relative(operands);					break;
+			case 99: running = false;					break;
 			default: throw std::runtime_error{ "Err" };
 			}
 		}
