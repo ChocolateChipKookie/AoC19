@@ -49,7 +49,6 @@ namespace ic
 	}
 
 
-
 	inline void add(std::array<lli*, 3>& operands)
 	{
 		*operands[2] = *operands[0] + *operands[1];
@@ -62,14 +61,10 @@ namespace ic
 	}
 	inline void jump(std::array<lli*, 3>& operands, bool zero)
 	{
-		if ((*operands[0] == 0) == zero)
-		{
+		if ((*operands[0] == 0) == zero) 
 			i = *operands[1];
-		}
 		else
-		{
 			i += 3;
-		}
 	}
 	inline void less(std::array<lli*, 3>& operands)
 	{
@@ -110,11 +105,11 @@ namespace ic
 		std::map<lli, lli>& input_code = context;
 		auto current_input = inputs.begin();
 		std::vector<lli> outputs;
-
+		
 		bool running = true;
+		std::array<lli*, 3> operands{};
 		while (running)
 		{
-			std::array<lli*, 3> operands{};
 			for (int k = 0; k < 3; ++k)
 			{
 				const int mode = nth_digit(input_code[i], k + 2);
@@ -127,8 +122,8 @@ namespace ic
 			case 2: mul(operands);						break;
 			case 3: input(operands, current_input);		break;
 			case 4: output(operands, running, outputs);	break;
-			case 5: jump(operands, false);				break;
-			case 6: jump(operands, true);				break;
+			case 5: jump(operands, false);			break;
+			case 6: jump(operands, true);			break;
 			case 7: less(operands);						break;
 			case 8: equal(operands);					break;
 			case 9: add_relative(operands);				break;
