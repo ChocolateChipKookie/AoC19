@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <array>
 #include <iterator>
 #include <map>
 
@@ -11,165 +12,166 @@ std::map<std::pair<lli, lli>, char> map;
 lli x = 0, y = 0;
 lli max_x{ 0 }, max_y{ 0 };
 
-std::map<lli, lli> context;
-lli i = 0;
-lli relative = 0;
-
-void intcode(std::vector<lli> inputs_to_computer = {}, bool second = false)
+namespace ic
 {
-	std::map<lli, lli>& inputs = context;
+	const std::string input_file{ "Text.txt" };
+	std::map<lli, lli> context;
+	lli i = 0;
+	lli relative = 0;
 
-	auto in = inputs_to_computer.begin();
-
-	while(true)
+	void reset_computer()
 	{
-		int mode1 = inputs[i] / 100 % 10;
-		int mode2 = inputs[i] / 1000 % 10;
-		int mode3 = inputs[i] / 10000;
-		int code = inputs[i] % 100;
+		i = relative = 0;
+		std::ifstream ifs(input_file);
+		std::vector<lli> inputs_{ std::istream_iterator<lli>(ifs), std::istream_iterator<lli>() };
+		ifs.close();
+		context.clear();
+		for (lli i = 0; i < inputs_.size(); ++i)
+			context[i] = inputs_[i];
+	}
 
-		lli* op1 = nullptr;
-		lli* op2 = nullptr;
-		lli* op3 = nullptr;
-
-		switch(mode1)
+	inline int nth_digit(int number, int digit_number)
+	{
+		const auto pow_10 = [](int pow)
 		{
-		case 0:
-			op1 = &inputs[inputs[i + 1]];
-			break;
-		case 1:
-			op1 = &inputs[i + 1];
-			break;
-		case 2:
-			op1 = &inputs[relative + inputs[i + 1]];
-			break;
-		}
+			int res = 1;
+			for (unsigned i = 0; i < pow; ++i)res *= 10;
+			return res;
+		};
+		return (number / pow_10(digit_number)) % 10;
+	};
 
-		switch(mode2)
+	inline lli* calculate_operand(std::map<lli, lli>& inputs, int mode, int operator_pos)
+	{
+		switch (mode)
 		{
-		case 0:
-			op2 = &inputs[inputs[i + 2]];
-			break;
-		case 1:
-			op2 = &inputs[i + 2];
-			break;
-		case 2:
-			op2 = &inputs[relative + inputs[i + 2]];
-			break;
-		}
-
-		switch(mode3)
-		{
-		case 0:
-			op3 = &inputs[inputs[i + 3]];
-			break;
-		case 1:
-			op3 = &inputs[i + 3];
-			break;
-		case 2:
-			op3 = &inputs[relative + inputs[i + 3]];
-			break;
-		}
-
-		switch (code)
-		{
-		case 1:
-			*op3 = *op1 + *op2;
-			i += 4;
-			break;
-		case 2:
-			{
-			*op3 = (*op1) * (*op2);
-			i += 4;
-			break;
-			}
-		case 3:
-			*op1 = *in;
-			++in;
-			i += 2;
-			break;
-		case 4:
-			{
-				if(!second)
-				{
-					char c = static_cast<char>(*op1);
-					if (c == '\n')
-					{
-						if (x > max_x)
-						{
-							max_x = x;
-						}
-						x = 0;
-						y++;
-						if (y > max_y)
-						{
-							max_y = y;
-						}
-					}
-					else
-					{
-						if (c == '.' || c == '#' || c == '^' || c == '<' || c == 'v' || c == '>')
-						{
-							map[{x, y}] = c;
-							++x;
-						}
-					}
-				}
-				else
-				{
-					if(*op1 < 256)
-					{
-						//std::cout << static_cast<char>(*op1);
-					}
-					else
-					{
-						std::cout << *op1;
-					}
-				}
-				i += 2;
-
-				break;
-			}
-		case 5:
-			if (*op1 != 0)
-			{
-				i = *op2;
-			}
-			else
-			{
-				i += 3;
-			}
-			break;
-		case 6:
-			if (*op1 == 0)
-			{
-				i = *op2;
-			}
-			else
-			{
-				i += 3;
-			}
-			break;
-		case 7:
-			*op3 = *op1 < *op2;
-			i += 4;
-			break;
-		case 8:
-			*op3 = *op1 == *op2;
-			i += 4;
-			break;
-		case 9:
-			relative += *op1;
-			i += 2;
-			break;
-		case 99:
-			goto end;
-
-		default:
-			throw std::runtime_error{ "Err" };
+		case 0: return &inputs[inputs[i + operator_pos]];
+		case 1: return &inputs[i + operator_pos];
+		case 2: return &inputs[relative + inputs[i + operator_pos]];
+		default: return nullptr;
 		}
 	}
-end:;
+
+
+	inline void add(std::array<lli*, 3>& operands)
+	{
+		*operands[2] = *operands[0] + *operands[1];
+		i += 4;
+	}
+	inline void mul(std::array<lli*, 3>& operands)
+	{
+		*operands[2] = (*operands[0]) * (*operands[1]);
+		i += 4;
+	}
+	inline void jump(std::array<lli*, 3>& operands, bool zero)
+	{
+		if ((*operands[0] == 0) == zero)
+			i = *operands[1];
+		else
+			i += 3;
+	}
+	inline void less(std::array<lli*, 3>& operands)
+	{
+		*operands[2] = *operands[0] < *operands[1];
+		i += 4;
+	}
+	inline void equal(std::array<lli*, 3>& operands)
+	{
+		*operands[2] = *operands[0] == *operands[1];
+		i += 4;
+	}
+	inline void add_relative(std::array<lli*, 3>& operands)
+	{
+		relative += *operands[0];
+		i += 2;
+	}
+
+	//Input variables
+
+	inline void input(std::array<lli*, 3>& operands, std::vector<lli>::iterator& in)
+	{
+		*operands[0] = *in;
+		++in;
+		i += 2;
+	}
+
+	//Output variables
+
+	bool first_task = true;
+
+	inline void output(std::array<lli*, 3>& operands, bool& running, std::vector<lli>& outputs)
+	{
+		if (first_task)
+		{
+			char c = static_cast<char>(*operands[0]);
+			if (c == '\n')
+			{
+				if (x > max_x)
+				{
+					max_x = x;
+				}
+				x = 0;
+				y++;
+				if (y > max_y)
+				{
+					max_y = y;
+				}
+			}
+			else
+			{
+				if (c == '.' || c == '#' || c == '^' || c == '<' || c == 'v' || c == '>')
+				{
+					map[{x, y}] = c;
+					++x;
+				}
+			}
+			std::cout << c;
+		}
+		else
+		{
+			if (*operands[0] > 127)
+			{
+				std::cout << *operands[0];
+			}
+		}
+
+
+		i += 2;
+	}
+
+	std::vector<lli> intcode(std::vector<lli> inputs = {})
+	{
+		std::map<lli, lli>& input_code = context;
+		auto current_input = inputs.begin();
+		std::vector<lli> outputs;
+
+		bool running = true;
+		std::array<lli*, 3> operands{};
+		while (running)
+		{
+			for (int k = 0; k < 3; ++k)
+			{
+				const int mode = nth_digit(input_code[i], k + 2);
+				operands[k] = calculate_operand(input_code, mode, k + 1);
+			}
+
+			switch (input_code[i] % 100)
+			{
+			case 1: add(operands);						break;
+			case 2: mul(operands);						break;
+			case 3: input(operands, current_input);		break;
+			case 4: output(operands, running, outputs);	break;
+			case 5: jump(operands, false);			break;
+			case 6: jump(operands, true);			break;
+			case 7: less(operands);						break;
+			case 8: equal(operands);					break;
+			case 9: add_relative(operands);				break;
+			case 99: running = false;					break;
+			default: throw std::runtime_error{ "Err" };
+			}
+		}
+		return outputs;
+	}
 }
 
 std::map<int, int> dx{ {0, 0}, {1, -1}, {2, 0}, {3, 1} };
@@ -178,18 +180,8 @@ std::map<int, int> dy{ {0, -1}, {1, 0}, {2, 1}, {3, 0} };
 
 void t1()
 {
-	std::ifstream ifs("Text.txt");
-	std::istream_iterator<lli> begin(ifs), end;
-	std::vector<lli> inputs_{ begin, end };
-	ifs.close();
-	context.clear();
-	for (lli i = 0; i < inputs_.size(); ++i)
-	{
-		context[i] = inputs_[i];
-	}
-	context[0] = 1;
-	
-	intcode();
+	ic::reset_computer();
+	ic::intcode();
 
 	std::vector<std::pair<lli, lli>> pairs;
 
@@ -199,9 +191,9 @@ void t1()
 		{
 			std::pair < lli, lli > current{ j, i };
 			int hashes = 0;
-			for (int i = 1; i <= 4; ++i)
+			for (int k = 1; k <= 4; ++k)
 			{
-				std::pair<lli, lli> next = { current.first + dx[i], current.second + dy[i] };
+				std::pair<lli, lli> next = { current.first + dx[k], current.second + dy[k] };
 
 				if (map.find(next) != map.end())
 				{
@@ -212,22 +204,15 @@ void t1()
 				}
 			}
 
-			if(hashes == 4)
+			if (hashes == 4)
 			{
 				pairs.push_back(current);
-				std::cout << 'o';
-			}
-			else
-			{	
-				std::cout << map[{j, i}];
 			}
 
 		}
-		std::cout << '\n';
 	}
 
 	lli total = 0;
-
 	for(auto& p : pairs)
 	{
 		total += p.first * p.second;
@@ -252,28 +237,17 @@ void t2()
 		program.push_back(static_cast<lli>(c));
 	}
 
-	{
-		i = 0;
-		relative = 0;
+	ic::first_task = false;
+	ic::reset_computer();
+	ic::context[0] = 2;
 
-		std::ifstream ifs("Text.txt");
-		std::istream_iterator<lli> begin(ifs), end;
-		std::vector<lli> inputs_{ begin, end };
-		ifs.close();
-		context.clear();
-		for (lli i = 0; i < inputs_.size(); ++i)
-		{
-			context[i] = inputs_[i];
-		}
-		context[0] = 2;
-
-		std::cout << "Second: ";
-		intcode(program, true); 
-		std::cout << std::endl;
-
-	}
+	std::cout << "Second: ";
+	ic::intcode(program); 
+	std::cout << std::endl;
 
 	/*
+	//Printing out the full path
+	 
 	std::map<std::pair<lli, lli>, char> new_map = map;
 
 	std::pair<lli, lli> current_position;
@@ -333,8 +307,8 @@ void t2()
 }
 
 /*
- * First: 2350741403
- * Second: 53088
+ * First: 3192
+ * Second: 684691
  */
 
 int main(int argc, char* argv[])
