@@ -48,8 +48,6 @@ namespace ic
 		}
 	}
 
-
-
 	inline void add(std::array<lli*, 3>& operands)
 	{
 		*operands[2] = *operands[0] + *operands[1];
@@ -133,36 +131,9 @@ namespace ic
 			case 8: equal(operands);					break;
 			case 9: add_relative(operands);				break;
 			case 99: running = false;					break;
-			default: throw std::runtime_error{ "Err" };
+			default: throw std::runtime_error{ "Default error" };
 			}
 		}
 		return outputs;
 	}
-
-}
-
-void t1()
-{
-	ic::reset_computer();
-	std::cout << "First: ";
-	ic::intcode({ 1 });
-}
-
-void t2()
-{
-	ic::reset_computer();
-	std::cout << "\nSecond: ";
-	ic::intcode({ 2 });
-	std::cout << std::endl;
-}
-
-/*
- * First: 2350741403
- * Second: 53088
- */
-
-int main(int argc, char* argv[])
-{
-	t1();
-	t2();
 }
