@@ -247,8 +247,8 @@ function t2()
 end
 
 """
-First: 73127523
-Second: 80284420
+First = 458
+Second = 5502
 """
 
 t1()
