@@ -1,18 +1,5 @@
 using DataStructures
 
-function print_map(map::Array{Bool, 2})
-    for i in 1:size(map)[2]
-        for j in 1:size(map)[1]
-            if map[j, i]
-                print('\u2588')
-            else
-                print('\u2591')
-            end
-        end
-        print('\n')
-    end
-end
-
 function load_map(input_file)
     file = split(read(input_file, String), "\r\n")
     file = filter!(x-> length(x) > 0, file)
