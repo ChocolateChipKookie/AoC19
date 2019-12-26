@@ -1,0 +1,43 @@
+                   *
+                   |
+   6-5-4-3-2-1 F H-I
+     | | |     | |
+   8-7 9 A-----E-G
+         |       |
+	   c-B       J
+         |
+		 D
+
+* - GOAL
+1 - Holodeck
+2 - Stables
+	Semiconductor
+3 - Observatory
+	planetoid
+4 - Crew quarters
+	food ration
+5 - Sick Bay
+	Fixed point
+6 - Passages
+	klein bottle
+7 - Arcade
+8 - Warp drive maintenence
+	weather machine
+9 - Storage
+A - Kitchen
+	giant electromagnet
+B - Navigation
+C - Science lab
+	infinite loop
+D - Hot chocolate fountain
+	Pointer
+E - Holodeck 
+	Coin
+F - Hallway
+	escape pod
+G - Engineering
+	photons
+H - Gift wrapping
+I - Security checkpoint
+J - Corridor
+	Molten lava
